@@ -5,4 +5,4 @@ pinecone-client
 datasets
 tqdm
 pandas
-mongod
+pymongo

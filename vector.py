@@ -5,7 +5,7 @@ import pandas as pd
 import json
 import time
 
-openai.api_key = "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"
+openai.api_key = ""
 
 MODEL = "text-embedding-ada-002"
 
