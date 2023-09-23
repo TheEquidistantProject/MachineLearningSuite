@@ -144,10 +144,10 @@ import json
 #  'id': -3059632832363739956}
 
 def test(n=3):
-    with open('cnn.json', 'r') as f:
+    with open('../cnn.json', 'r') as f:
         cnn_articles = json.load(f)
 
-    with open('fox.json', 'r') as f:
+    with open('../fox.json', 'r') as f:
         fox_articles = json.load(f)
 
     test_db = VectorDB()
