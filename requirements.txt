@@ -1,0 +1,8 @@
+beautifulsoup4
+requests
+openai
+pinecone-client 
+datasets
+tqdm
+pandas
+mongod
