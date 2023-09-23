@@ -1,6 +1,6 @@
 # The Equidistant Project - Machine Learning Suite
 
-![Equidistant Project Logo](insert_logo_url_here)
+![Equidistant Project Logo](logo_banner.png)
 
 Welcome to the Machine Learning Suite repository of The Equidistant Project. This repository houses the code and resources for our mission to combat misinformation and bias in the news sphere through data scraping, text embeddings, and unbiased article generation.
 
