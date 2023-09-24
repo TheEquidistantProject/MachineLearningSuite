@@ -14,7 +14,6 @@ Welcome to the Machine Learning Suite repository of The Equidistant Project. Thi
 - [Dependencies](#dependencies)
 - [Getting Started](#getting-started)
 - [Usage](#usage)
-- [Contributing](#contributing)
 - [License](#license)
 
 ## Project Overview
