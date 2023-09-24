@@ -31,6 +31,8 @@ Our workflow can be summarized as follows:
 
 3. **Cosine Similarity**: We calculate cosine similarity between articles based on their body text. This allows us to pair articles with similar content.
 
+4. **Prompt Generation**: We design specific prompts to align the GPT-3.5-turbo-instruct model to produce balanced and unbiased articles. These prompts play a crucial role in preventing misinformation.
+
 ### Cosine Similarity
 
 In our workflow, we employ **cosine similarity** to measure the similarity between news articles based on their body text. Cosine similarity is a metric that quantifies the cosine of the angle between two non-zero vectors in a multi-dimensional space. In our case, each news article is represented as a vector in this space, and the cosine similarity score indicates how closely the articles align in content. This similarity metric helps us pair articles with similar content, facilitating further analysis and article generation.
@@ -38,8 +40,6 @@ In our workflow, we employ **cosine similarity** to measure the similarity betwe
 ### Stable Matching Problem
 
 The process of pairing articles based on their content can be analogously related to the **Stable Matching Problem** in the field of mathematics and computer science. In the Stable Matching Problem, entities from two groups are paired in a way that there are no pairs of entities that both prefer each other over their current partners. Similarly, in our project, we aim to pair articles in a way that maximizes content alignment while minimizing the potential for misinformation.
-
-4. **Prompt Generation**: We design specific prompts to align the GPT-3.5-turbo-instruct model to produce balanced and unbiased articles. These prompts play a crucial role in preventing misinformation.
 
 ### The Instruct Model
 
