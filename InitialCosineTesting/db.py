@@ -1,11 +1,13 @@
-# pip install pandas, openai, scipy, matplotlib, plotly, scikit-learn, numpy
+# pip install pandas openai scipy matplotlib plotly scikit-learn numpy pymongo
+# needs openai.txt mongo.txt cnn.json fox.json in the same directory
 
 import pandas as pd
 import openai
 from openai.embeddings_utils import cosine_similarity
 from random import choice
 
-openai.api_key = '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'
+with open('openai.txt', 'r') as f:
+    openai.api_key = f.read()
 
 class VectorDB():
     def __init__(self) -> None:
@@ -148,10 +150,10 @@ import json
 #  'id': -3059632832363739956}
 
 def test(n=2):
-    with open('../cnn.json', 'r') as f:
+    with open('cnn.json', 'r') as f:
         cnn_articles = json.load(f)
 
-    with open('../fox.json', 'r') as f:
+    with open('fox.json', 'r') as f:
         fox_articles = json.load(f)
 
     test_db = VectorDB()
@@ -166,5 +168,51 @@ def test(n=2):
     return test_db.get_new_articles()
 
 
-with open("new.json", "w") as outfile:
-    outfile.write(json.dumps(test(200), indent=4))
+# with open("new.json", "w") as outfile:
+#     outfile.write(json.dumps(test(200), indent=4))
+
+data = test(200)
+
+categs = []
+
+for i in data:
+    categs+=i['categories']
+
+categs = list(set(categs))
+
+categs_count = {e : 0 for e in categs}
+for i in data:
+    categs_count[i['categories'][0]]+=1
+
+categs_count = {k: v for k, v in sorted(categs_count.items(), key=lambda item: item[1], reverse=True)}
+
+top_categs = list(categs_count.keys())[:5]
+data = [i for i in data if i['categories'][0] in top_categs]
+
+
+new_format = []
+for i in data:
+    new_format.append(
+        {
+            "title": i['title'],
+            "news_article": i['content'],
+            "source": "CNN and Fox News",
+            "date": '2023-09-22',
+            "urlToImage": [i['urlToImage']],
+            "hashtags": i['categories'][0]
+        }
+    )
+
+# with open("new_format.json", "w") as outfile:
+#     outfile.write(json.dumps(new_format, indent=4))
+
+
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
+
+with open('mongo.txt', 'r') as f:
+    uri = f.read()
+
+# Create a new client and connect to the server
+client = MongoClient(uri, server_api=ServerApi('1'))
+client["db"]["Articles"].insert_many(new_format)
