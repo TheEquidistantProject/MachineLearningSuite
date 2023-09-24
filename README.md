@@ -30,7 +30,7 @@ Our workflow can be summarized as follows:
 
 3. **Cosine Similarity**: We calculate cosine similarity between articles based on their body text. This allows us to pair articles with similar content.
 
-4. **Prompt Generation**: We design specific prompts to align the GPT-3.5-turbo-instruct model to produce balanced and unbiased articles. These prompts play a crucial role in preventing misinformation.
+4. **Prompt Engineering**: We design specific prompts to align the GPT-3.5-turbo-instruct model to produce balanced and unbiased articles. These prompts play a crucial role in preventing misinformation.
 
 ### Cosine Similarity
 
