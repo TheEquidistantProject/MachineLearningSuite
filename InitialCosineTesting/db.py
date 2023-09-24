@@ -5,7 +5,7 @@ import openai
 from openai.embeddings_utils import cosine_similarity
 from random import choice
 
-openai.api_key = 'sk-...'
+openai.api_key = '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'
 
 class VectorDB():
     def __init__(self) -> None:
@@ -30,7 +30,7 @@ class VectorDB():
         article['closest_article_id'] = closest_article_id
         # update right
         if closest_article_id != None:
-            self.right[self.right['id'] == closest_article_id]['closest_article_id'] = article['id']
+            self.right.loc[self.right['id'] == closest_article_id,'closest_article_id'] = article['id']
 
         self.left = pd.concat([self.left, pd.DataFrame(article)])
 
@@ -48,7 +48,7 @@ class VectorDB():
         
         # update left
         if closest_article_id != None:
-            self.left[self.left['id'] == closest_article_id]['closest_article_id'] = article['id']
+            self.left.loc[self.left['id'] == closest_article_id, 'closest_article_id'] = article['id']
         # add to right
         article['vector'] = vector
         article['closest_article_id'] = closest_article_id
@@ -68,37 +68,37 @@ class VectorDB():
 
         if side == 'left':
             article = self.left[self.left['id'] == article_id]
-            closest_article_id = int(article['closest_article_id'])
+            closest_article_id = int(article['closest_article_id'].iloc[0])
             closest_article = self.right[self.right['id'] == closest_article_id]
         elif side == 'right':
             article = self.right[self.right['id'] == article_id]
-            closest_article_id = int(article['closest_article_id'])
+            closest_article_id = int(article['closest_article_id'].iloc[0])
 
             closest_article = self.left[self.left['id'] == closest_article_id]            
 
-        prompt="Below are two articles covering the same topic, go through them and generate a new article combining them and covering both sides:\nArticle 1:\n{}\nArticle 2:\n{}\n\nArticle 3:\n".format(article['content'], closest_article['content'])
+        prompt="Below are two articles covering the same topic, go through them and generate a new article body without the title combining them and covering both sides:\nArticle 1:\n{}\nArticle 2:\n{}\n\nArticle 3:\n".format(article['content'], closest_article['content'])
 
 
         new_content = openai.Completion.create(
             model="gpt-3.5-turbo-instruct",
             prompt=prompt,
-            max_tokens=1024,
-            temperature=0.5,
+            max_tokens=512,
+            temperature=0.7,
         )['choices'][0]['text']
 
         new_title = openai.Completion.create(
             model="gpt-3.5-turbo-instruct",
-            prompt=f"Suggest a good title for this article:\n {new_content}\n\n",
+            prompt=f"Suggest a good title for this article(return only a capitalised string without any quatation marks):\n {new_content}\n\n",
             max_tokens=50,
-            temperature=0.5,
+            temperature=0.7,
         )['choices'][0]['text']
 
         return {
-            'title': new_title,
-            'content': new_content,
-            'source': article['source']+' and '+closest_article['source'],
-            'publishedAt': article['publishedAt'],
-            'urlToImage': choice([article['urlToImage'], closest_article['urlToImage']]),
+            'title': new_title.replace('"', '').strip(),
+            'content': new_content.strip(),
+            'source': article['source'].iloc[0]+' and '+closest_article['source'].iloc[0],
+            'publishedAt': article['publishedAt'].iloc[0],
+            'urlToImage': str(choice([article['urlToImage'], closest_article['urlToImage']]).iloc[0]),
             'categories': self.get_categories(new_content)
         }
     
@@ -107,13 +107,12 @@ class VectorDB():
 
         response = openai.Completion.create(
             model="gpt-3.5-turbo-instruct",
-            prompt=f"Generate a comma separated list of tags for this article:\nyour options are: World News, National News, Politics, Business, Technology, Science, Health, Environment, Entertainment, Sports\n {text}\n\n",
-            max_tokens=10,
+            prompt=f"Choose one tag for this article from these options only, you are not allowed to output any other tag(only output the tag as a sigle word and nothing else): politics, environment, finance, sports, technology, war\n\n {text}\n\n",
+            max_tokens=2,
             temperature=0.5,
         )['choices'][0]['text']
-        print(response)
 
-        return response.strip().split(',')
+        return [e.strip().lower() for e in response.strip().split(',')]
     
     def get_new_articles(self):
         # see which side has less articles
@@ -128,8 +127,13 @@ class VectorDB():
         new_articles = []
         temp = db[db['closest_article_id'] != None]
         for i in range(len(temp)):
-            article = temp.iloc[i]
-            new_articles.append(self.get_combined(article['id'], side=side))
+            try:
+                article = temp.iloc[i]
+                new_articles.append(self.get_combined(article['id'], side=side))
+                print(new_articles[-1])
+            except Exception as e:
+                print(e)
+                pass
         return new_articles
 
 import json
@@ -143,7 +147,7 @@ import json
 #  'publishedAt': '2023-09-23T18:51:26Z',
 #  'id': -3059632832363739956}
 
-def test(n=3):
+def test(n=2):
     with open('../cnn.json', 'r') as f:
         cnn_articles = json.load(f)
 
@@ -161,3 +165,6 @@ def test(n=3):
 
     return test_db.get_new_articles()
 
+
+with open("new.json", "w") as outfile:
+    outfile.write(json.dumps(test(200), indent=4))
